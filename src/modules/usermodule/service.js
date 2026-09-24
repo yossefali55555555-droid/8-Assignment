@@ -46,7 +46,8 @@ if(!filter.length){
     const data1 = await found.updateOne({
         name:data.name,
         email:data.email,
-        age :data.age
+        age :data.age,
+        phone:data.phone
     })
     return {data1}
 }
