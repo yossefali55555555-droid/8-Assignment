@@ -5,9 +5,9 @@ import { success } from "../../utils/successresponse.js";
 const noterouter = Router()
 export const notesroutes = {base:"/notes",create:"/create",update:"/update/:id",replace:"/replace/:id",many:"/many",delete:"/delete/:id",paginate:"/paginate/:userid",get:"/get/:id",findbytitle:"/ftitle/:userid",noteWithUser:"/note-With-User",agg:"/agg/:userid",deletemany:"/delall/:userid"}
 noterouter.post(notesroutes.create,async(req,res)=>{
-    const {id}=req.query
+    const {userid}=req.query
     const body = req.body
-    const data = await all.createnote(id,body)
+    const data = await all.createnote(userid,body)
     success({res,status:200,data})
 })
 
@@ -19,11 +19,11 @@ noterouter.patch(notesroutes.update,async(req,res)=>{
     success({res,status:200,data})
 })
 
-noterouter.patch(notesroutes.replace,async(req,res)=>{
+noterouter.put(notesroutes.replace,async(req,res)=>{
     const {id} = req.params
     const body = req.body
     const {userid} =req.query
-    const data = await all.updatenote(id,userid,body)
+    const data = await all.replace(id,userid,body)
     success({res,status:200,data})
 })
 
@@ -36,9 +36,8 @@ noterouter.patch(notesroutes.many,async(req,res)=>{
 
 noterouter.delete(notesroutes.delete,async(req,res)=>{
     const {id} = req.params
-    const body = req.body
     const {userid} =req.query
-    const data = await all.deletenote(id,userid,body)
+    const data = await all.deletenote(id,userid)
     success({res,status:200,data})
 })
 
@@ -52,7 +51,7 @@ noterouter.get(notesroutes.paginate,async(req,res)=>{
 })
 noterouter.get(notesroutes.get,async(req,res)=>{
         const {id}=req.params
-        const {title}=req.query
+        const {userid} = req.query
         const data = await all.getnote(id,userid)     
         success({res,status:200,data})
 })
@@ -60,8 +59,8 @@ noterouter.get(notesroutes.get,async(req,res)=>{
 
 noterouter.get(notesroutes.findbytitle,async(req,res)=>{
     const {userid}=req.params
-    const {title}=req.query
-    const data = await all.findbycontent(userid,title)
+    const {content}=req.query
+    const data = await all.findbycontent(userid,content)
      success({res,status:200,data})
 })
 

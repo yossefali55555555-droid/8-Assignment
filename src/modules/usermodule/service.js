@@ -1,6 +1,10 @@
 import { usermodel } from "../../db/models/usermodel.js"
 
 export const createuser = async (data)=>{
+    const user1  = await usermodel.findOne({email:data.email})
+    if(user1){
+        return {msg:"user exists"}
+    }
     const user = await usermodel.create(
     {
         name:data.name,
@@ -27,29 +31,25 @@ export const login  = async (data1)=>{
 
 
 export const update = async (id,data)=>{
-    const all = await usermodel.find().select("email")
-    const find= await usermodel.findById(id)
-       if(!find){
-        return {
-            msg:"user not found"
-        }
-    }
-    const filter = all.filter((ele)=>{
-        return  ele.email===data.email})
-    if(!filter.length){
-        const data1 =await find.updateOne({
-            name:data.name,
-            email:data.email,
-            phone:data.phone
-        })
-        return {data1}
-    }
-    if(filter.length){
-        return{
-            msg:"the email exists"
-        }
-    }
- 
+const findall= await usermodel.find().select("email")
+const found = await usermodel.findById(id)
+if(!found){
+    return {msg:"user not found"}
+}
+const filter = findall.filter((ele)=>{
+    return data.email==ele.email && data.email!==found.email
+})
+if(filter.length){
+    return {msg:"user exists"}
+}
+if(!filter.length){
+    const data1 = await found.updateOne({
+        name:data.name,
+        email:data.email,
+        age :data.age
+    })
+    return {data1}
+}
 }
 
 

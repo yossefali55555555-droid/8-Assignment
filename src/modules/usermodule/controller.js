@@ -3,7 +3,7 @@ import * as all from "./service.js";
 import { usermodel } from "../../db/models/usermodel.js";
 import { success } from "../../utils/successresponse.js";
 const userrouter = Router()
-export const routes = {base:"/user",get:"/get/:id",delete:"/del/:id",update:"/update/:id",create:"/create",login:"/login"}
+export const routes = {base:"/user",get:"/get/:id",delete:"/del/",update:"/update/:id",create:"/create",login:"/login"}
 userrouter.post(routes.create ,async(req,res)=>{
     const {body} =req
     const data = await all.createuser(body)
@@ -21,8 +21,8 @@ userrouter.patch(routes.update, async (req,res)=>{
 })
 
 userrouter.delete (routes.delete,async(req,res)=>{
-    const {id} =req.params 
-    const data =await all.del(id)
+    const {userid} =req.query 
+    const data =await all.del(userid)
     success({res,status:200,data})
 })
 

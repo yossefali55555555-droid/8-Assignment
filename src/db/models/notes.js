@@ -6,7 +6,7 @@ const notessch = new Schema ({
             validator: function(title){
                 return title !== title.toUpperCase()
             },
-            msg:"invalid should be the first and last only upper"
+            message: "Title cannot be entirely uppercase"
         }
     },
     content:{
@@ -15,7 +15,7 @@ const notessch = new Schema ({
     }
     ,userId:{
         type:mongoose.Types.ObjectId,
-        ref:"users"
+        ref:"users",required: true
     }
 },{timestamps:true})
 export const notemodel = model("notes",notessch)

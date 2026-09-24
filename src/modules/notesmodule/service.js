@@ -10,7 +10,10 @@ export const createnote = async(id,data1)=>{
 }
 
 export const updatenote = async(id,userId,data)=>{
-    const find =await notemodel.findOne({userId:userId})
+    const find =await notemodel.findOne({_id:id})
+    if(!find){
+        return  {msg :"the note not found"}
+    }
     if(userId==find.userId){
     const data1 = await notemodel.findByIdAndUpdate(id,{
         title:data.title,
@@ -28,11 +31,15 @@ else{
 }
 
 export const replace = async(id,userId,data)=>{
-    const find =await notemodel.findOne({userId:userId})
+    const find =await notemodel.findOne({_id:id})
+    if(!find){
+        return {msg:"note not found"}
+    }
     if(userId==find.userId){
-    const data1 = await notemodel.findOneAndReplace(id,{
+    const data1 = await notemodel.findOneAndReplace( {_id: id},{
         title:data.title,
-        content :data.content
+        content :data.content,
+        userId:userId
     },{returnDocument:"after"})
     return {data1}
 }
@@ -48,13 +55,13 @@ export const updatemany = async (data,userid)=>{
     return {data1}
 }
 
-export const deletenote = async(id,userId,data)=>{
-    const find =await notemodel.findOne({userId:userId})
+export const deletenote = async(id,userId)=>{
+    const find =await notemodel.findOne({_id:id,userId:userId})
     if(!find){
         return {msg:"note not found"}
     }
     if(userId==find.userId){
-    const data1 = await notemodel.findByIdAndDelete(id,{returnDocument:"after"})
+    const data1 = await notemodel.findByIdAndDelete({_id:id,userId:userId},{returnDocument:"after"})
     return {data1}
 }
 else{
@@ -69,16 +76,25 @@ export const paginte = async(offset , limit,userid)=>{
     return{data}
 }
 
-export const getnote =async(noteid,ownerid)=>{
-    const data = await notemodel.findOne({userId:ownerid,_id:noteid})
-    return{data}
+export const getnote = async(noteid,ownerid)=>{
+
+    const data = await notemodel.findOne({
+        _id:noteid,
+        userId:ownerid
+    })
+
+    if(!data){
+        return {msg:"data not found"}
+    }
+
+    return {data}
 }
 
 
-export const findbycontent = async (userid,title)=>{
+export const findbycontent = async (userid,content)=>{
     const data = await notemodel.findOne({
         userId:userid,
-        title : title
+        content : content
     })
     if(data){
     return {data}
@@ -101,32 +117,36 @@ export const findall= async (userid)=>{
 }
 
 export const agg= async(userid,title)=>{
-    userid = new mongoose.Types.ObjectId(userid)
-    const data = await notemodel.aggregate([{
-        $lookup:{
-            from:"users",
-            foreignField:"_id",
-            localField:"userId",
-            as: "userid"
+    userid =new mongoose.Types.ObjectId(userid)
+    const data = await notemodel.aggregate([
+          {
+            $match:{
+                title:title,
+                userId:userid
+            }
+        },  {
+            $lookup:{
+                from:"users",
+                foreignField:"_id",
+                localField:"userId",
+                as:"User_Info"
+            }
+        },{
+            $unwind:"$User_Info"
+        },
+        {
+            $project:{
+                _id:0,
+                title:1,
+                userId:1,
+                createdAt:1,
+                "User_Info.name":1,
+                "User_Info.email":1
+            }
         }
-    },{
-        $unwind:"$userid"
-    },{
-    $project: {
-        _id: 0,
-        title: 1,
-        userId: 1,
-        createdAt: 1,
-        "userid.name": 1,
-        "userid.email": 1
-    }
-},{
-        $match:{
-            title:title,
-            userId:userid
-        }
-    }])
-    return{data}
+        
+    ])
+    return {data}
 }
 
 export const deleteallfor = async (userid)=>{
